@@ -1,0 +1,46 @@
+#!/bin/sh
+
+: ${C_FLAG:=0}
+: ${K_FLAG:=0}
+
+while getopts "ckf:" opts
+do
+	case $opts in
+		c)
+			C_FLAG=1
+			;;
+		k)
+			K_FLAG=1
+			;;
+		f)
+			TARGET_FILE=$OPTARG
+			;;
+	esac
+done
+
+if [ -z $TARGET_FILE ];
+then
+	echo "TARGET FILE must be defined with -f option."
+	exit 1
+fi
+
+if [ $C_FLAG -eq "1" ] && [ $K_FLAG -eq "1" ];
+then
+	echo "INVALID OPTION"
+	exit 1
+fi
+
+if [ $C_FLAG -eq "1" ];
+then
+	echo "ファイル $TARGET_FILE の中の句読点をコンマとピリオドに変換します。"
+	sed -i "-bak" -e "s/、/，/g" -e "s/。/．/g" $TARGET_FILE
+fi
+
+if [ $K_FLAG -eq "1" ];
+then
+	echo "ファイル $TARGET_FILE の中のコンマとピリオドを句読点に変換します。"
+	sed -i "-bak" -e "s/，/、/g" -e "s/．/。/g" $TARGET_FILE
+fi
+
+
+exit 0
