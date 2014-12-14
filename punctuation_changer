@@ -2,8 +2,8 @@
 
 : ${C_FLAG:=0}
 : ${K_FLAG:=0}
-
-while getopts "ckf:" opts
+: ${OPT_ERROR=0}
+while getopts "ckhf:" opts
 do
 	case $opts in
 		c)
@@ -15,18 +15,39 @@ do
 		f)
 			TARGET_FILE=$OPTARG
 			;;
+		h)
+			OPT_ERROR=1
+			;;
+		\?)
+			OPT_ERROR=1
+			break
+			;;
 	esac
 done
+
+
+if [ $C_FLAG -eq "1" ] && [ $K_FLAG -eq "1" ];
+then
+	OPT_ERROR=1
+fi
+
+if [ $OPT_ERROR -eq "1" ];
+then
+	cat << __EOT__
+USAGE:
+$0 {-c|-k} -f <TARGET_FILE>
+
+-c	change KUTOUTEN into comma/period
+-k	change comma/period into KUTOUTEN
+
+TARGET_FILE must be defined with -f option.
+__EOT__
+	exit 1
+fi
 
 if [ -z $TARGET_FILE ];
 then
 	echo "TARGET FILE must be defined with -f option."
-	exit 1
-fi
-
-if [ $C_FLAG -eq "1" ] && [ $K_FLAG -eq "1" ];
-then
-	echo "INVALID OPTION"
 	exit 1
 fi
 
